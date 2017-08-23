@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+
+var argv = require('minimist')(process.argv.slice(2), {
+  '--': true,
+  alias: {
+    maxAttempts: 'max-attempts',
+    resultsXmlPath: 'results-xml-path',
+    protractorPath: 'protractor-path',
+    nodeBin: 'node-bin'
+  }
+});
+
+argv.protractorArgs = argv['--'];
+delete argv['--'];
+
+var flake = require('../dist/index');
+
+flake(argv, function (status) {
+  process.exit(status);
+});
