@@ -43,6 +43,8 @@ export default function (options = {}, callback = function noop () {}) {
       protractorArgs.push('--jasmineNodeOpts.grep', specRegex);
     }
 
+    protractorArgs.push('--testAttempt', testAttempt);
+
     let protractor = spawn(
       parsedOptions.nodeBin,
       protractorArgs,
