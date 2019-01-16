@@ -24,7 +24,7 @@ export default function (options = {}, callback = function noop () {}) {
           logger.log('info', 'Re-running:', failedSpecNames.length, ' tests');
         }
         let specRegex = failedSpecNames.join('|');
-        return startProtractor(specRegex, true)
+        return startProtractor(specRegex, testAttempt === parsedOptions.maxAttempts);
       }
 
       callback(status, output)
