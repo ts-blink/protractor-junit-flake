@@ -5,28 +5,32 @@ import 'core-js/shim'
 import Logger from './logger'
 
 export default function (options = {}, callback = function noop () {}) {
-  let testAttempt = 1
   let parsedOptions = parseOptions(options)
+  let testAttempt = parsedOptions.testAttempt || 1
   let logger = new Logger(parsedOptions.color)
 
+  function rerunFailedTests() {
+    let failedSpecNames = processResults(parsedOptions.resultsXmlPath);
+
+    logger.log('info', `Re-running tests: test attempt ${testAttempt}\n`)
+    if (failedSpecNames.length === 0) {
+      logger.log('info', '\nNo failed specs were found. Not re-running tests.\n\n')
+      return;
+    } else {
+      logger.log('info', 'Re-running:', failedSpecNames.length, ' tests');
+    }
+    let specRegex = failedSpecNames.join('|');
+    startProtractor(specRegex, true)
+  }
+  
   function handleTestEnd(status, output = '') {
     logger.log('Test Ended', status, output);
     if (status === 0) {
       callback(status)
     } else {
       if (++testAttempt <= parsedOptions.maxAttempts) {
-        let failedSpecNames = processResults(parsedOptions.resultsXmlPath);
-
-        logger.log('info', `Re-running tests: test attempt ${testAttempt}\n`)
-        if (failedSpecNames.length === 0) {
-          logger.log('info', '\nTests failed but no specs were found. All specs will be run again.\n\n')
-        } else {
-          logger.log('info', 'Re-running:', failedSpecNames.length, ' tests');
-        }
-        let specRegex = failedSpecNames.join('|');
-        return startProtractor(specRegex, true)
+        rerunFailedTests();
       }
-
       callback(status, output)
     }
   }
@@ -68,5 +72,9 @@ export default function (options = {}, callback = function noop () {}) {
     })
   }
 
-  startProtractor()
+  if(testAttempt > 1 && testAttempt <= parsedOptions.maxAttempts) {
+    rerunFailedTests()
+  } else {
+    startProtractor()
+  }
 }
