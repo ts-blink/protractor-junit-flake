@@ -15,7 +15,7 @@
     "test:integration": "npm run build && mocha --opts test/integration/mocha.opts --slow 30001 --timeout 30000 --reporter tap",
     "test:dev": "mocha --watch --opts test/unit/mocha.opts",
     "build": "npx babel -d dist src",
-    "prepublish": "npm run build",
+    "preppy": "npm run build",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "bin": "./bin/protractor-junit-flake",
