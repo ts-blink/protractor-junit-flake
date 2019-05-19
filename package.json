@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ts-blink/protractor-junit-flake.git"
+    "url": "https://github.com/binary-bard/protractor-junit-flake.git"
   },
   "scripts": {
     "serve": "bin/www",
@@ -74,5 +74,5 @@
       "$"
     ]
   },
-  "version": "0.2.1"
+  "version": "0.2.2"
 }
