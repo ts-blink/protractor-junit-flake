@@ -1,6 +1,5 @@
-import {resolve} from 'path'
 import styles from 'chalk'
-import path from 'path';
+import { resolve, path } from 'path'
 
 const DEFAULT_OPTIONS = {
   nodeBin: 'node',

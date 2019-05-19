@@ -46,7 +46,7 @@ describe('Protractor Flake', () => {
 
   context('failed specs', () => {
     it('calls callback with an err if a negative status is returned', (done) => {
-      protractorFlake({maxAttempts: 1}, (status) => {
+      protractorFlake({ maxAttempts: 1 }, (status) => {
         expect(status).to.equal(status, 1)
         done()
       })
@@ -55,7 +55,7 @@ describe('Protractor Flake', () => {
     })
 
     it('calls callback with an err if a negative status is after multiple attempts', function (done) {
-      protractorFlake({maxAttempts: 3}, (status) => {
+      protractorFlake({ maxAttempts: 3 }, (status) => {
         expect(status).to.equal(status, 1)
         done()
       })
@@ -66,7 +66,7 @@ describe('Protractor Flake', () => {
     })
 
     it('calls callback with output from protractor process', (done) => {
-      protractorFlake({maxAttempts: 1}, (status, output) => {
+      protractorFlake({ maxAttempts: 1 }, (status, output) => {
         expect(status).to.equal(status, 1)
         expect(output).to.equal('Test')
         done()
@@ -77,7 +77,7 @@ describe('Protractor Flake', () => {
     })
 
     it('does not blow up if no callback is passed', function () {
-      protractorFlake({maxAttempts: 1})
+      protractorFlake({ maxAttempts: 1 })
 
       expect(() => {
         spawnStub.endCallback(1)
@@ -85,7 +85,7 @@ describe('Protractor Flake', () => {
     })
 
     it('isolates individual failed specs from protractor output', () => {
-      protractorFlake({maxAttempts: 3})
+      protractorFlake({ maxAttempts: 3 })
 
       spawnStub.dataCallback(failedSingleTestOutput)
       spawnStub.endCallback(1)
@@ -94,7 +94,7 @@ describe('Protractor Flake', () => {
     })
 
     it('isolates failed specs for sharded protractor output', () => {
-      protractorFlake({maxAttempts: 3})
+      protractorFlake({ maxAttempts: 3 })
 
       spawnStub.dataCallback(failedShardedTestOutput)
       spawnStub.endCallback(1)
@@ -169,53 +169,53 @@ describe('Protractor Flake', () => {
 
   context('options', () => {
     it('allows a different path for protractor by using protractorPath option', () => {
-      protractorFlake({protractorPath: '/arbitrary/path/to/protractor'})
+      protractorFlake({ protractorPath: '/arbitrary/path/to/protractor' })
 
       expect(spawnStub).to.have.been.calledWith('node', ['/arbitrary/path/to/protractor'])
     })
 
     it('allows a different path for node by using nodeBin option', () => {
-      protractorFlake({nodeBin: '/path/node'})
+      protractorFlake({ nodeBin: '/path/node' })
 
       expect(spawnStub).to.have.been.calledWith('/path/node', [pathToProtractor()])
     })
 
     it('passes protractorArgs to spawned protractor process', () => {
-      protractorFlake({protractorArgs: ['--suite=fail']})
+      protractorFlake({ protractorArgs: ['--suite=fail'] })
 
       expect(spawnStub).to.have.been.calledWithMatch('node', [pathToProtractor(), '--suite=fail'])
     })
 
     it('uses protractorSpawnOptions for spawned protractor process', () => {
-      protractorFlake({protractorSpawnOptions: { cwd: './' }})
+      protractorFlake({ protractorSpawnOptions: { cwd: './' } })
 
       expect(spawnStub).to.have.been.calledWithMatch('node', [pathToProtractor()], { cwd: './' })
     })
 
     context('color option', (options) => {
       it('defaults to magenta color', () => {
-        expect(parseOptions(options)).to.include({color: 'magenta'})
+        expect(parseOptions(options)).to.include({ color: 'magenta' })
       })
 
       it('disables when color is set to (bool)false', () => {
         let options = {
           color: false
         }
-        expect(parseOptions(options)).to.include({color: false})
+        expect(parseOptions(options)).to.include({ color: false })
       })
 
       it('disables when color is set to (string)false', () => {
         let options = {
           color: 'false'
         }
-        expect(parseOptions(options)).to.include({color: false})
+        expect(parseOptions(options)).to.include({ color: false })
       })
 
       it('sets a custom color', () => {
         let options = {
           color: 'yellow'
         }
-        expect(parseOptions(options)).to.include({color: 'yellow'})
+        expect(parseOptions(options)).to.include({ color: 'yellow' })
       })
 
       it('throws an exeption when invalid color is used', () => {
