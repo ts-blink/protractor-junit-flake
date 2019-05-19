@@ -8,12 +8,13 @@
   },
   "scripts": {
     "serve": "bin/www",
-    "lint": "standard --fix",
+    "lint": "standard",
     "commitcheck": "conventional-changelog-lint --from=HEAD~$(git --no-pager rev-list master..HEAD --count)",
     "test": "npm run lint && npm run commitcheck && npm run test:unit",
     "test:unit": "mocha --opts test/unit/mocha.opts",
     "test:integration": "npm run build && mocha --opts test/integration/mocha.opts --slow 30001 --timeout 30000 --reporter tap",
     "test:dev": "mocha --watch --opts test/unit/mocha.opts",
+    "build": "babel -d dist src",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "bin": "./bin/protractor-junit-flake",
