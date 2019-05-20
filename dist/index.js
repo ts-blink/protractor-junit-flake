@@ -72,6 +72,7 @@ exports['default'] = function () {
     }
 
     protractorArgs.push('--testAttempt', testAttempt);
+    protractorArgs.push('--disableChecks');
 
     var protractor = (0, _child_process.spawn)(parsedOptions.nodeBin, protractorArgs, parsedOptions.protractorSpawnOptions);
 

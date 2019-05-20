@@ -48,6 +48,7 @@ export default function (options = {}, callback = function noop () {}) {
     }
 
     protractorArgs.push('--testAttempt', testAttempt)
+    protractorArgs.push('--disableChecks')
 
     let protractor = spawn(
       parsedOptions.nodeBin,
