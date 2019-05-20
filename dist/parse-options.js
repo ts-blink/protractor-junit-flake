@@ -19,7 +19,7 @@ var DEFAULT_OPTIONS = {
   // set color to one of the colors available at 'chalk' - https://github.com/chalk/ansi-styles#colors
   // set false to disable coloring
   color: 'magenta',
-  resultsXmlPath: _path.path.join(process.cwd(), '/results/*.xml')
+  resultsXmlPath: (0, _path.join)(process.cwd(), '/results/*.xml')
 };
 
 function parseOptions(providedOptions) {
