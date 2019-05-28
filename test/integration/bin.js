@@ -3,7 +3,7 @@ import { unlink } from 'fs'
 import { resolve } from 'path'
 import { spawn } from 'child_process'
 
-const FLAKE_FILE = resolve(__dirname + '/../support/times-flaked')
+const FLAKE_FILE = resolve(__dirname, '/../support/times-flaked')
 const CONFIG_DIR = resolve(__dirname, 'support/protractor-config')
 
 function configPath (filename) {
@@ -25,7 +25,7 @@ function spawnFlake (flakeArgs = []) {
 
 describe('Protractor Flake Executable', function () {
   before((done) => {
-    server.listen({port: process.env.PORT}, () => {
+    server.listen({ port: process.env.PORT }, () => {
       done()
     })
   })

@@ -1,6 +1,5 @@
-import {resolve} from 'path'
 import styles from 'chalk'
-import path from 'path';
+import { resolve, join } from 'path'
 
 const DEFAULT_OPTIONS = {
   nodeBin: 'node',
@@ -9,7 +8,7 @@ const DEFAULT_OPTIONS = {
   // set color to one of the colors available at 'chalk' - https://github.com/chalk/ansi-styles#colors
   // set false to disable coloring
   color: 'magenta',
-  resultsXmlPath: path.join(process.cwd(), '/results/*.xml')
+  resultsXmlPath: join(process.cwd(), '/results/*.xml')
 }
 
 function parseOptions (providedOptions) {

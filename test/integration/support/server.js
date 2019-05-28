@@ -1,11 +1,12 @@
 /* eslint-disable no-console */
+import { resolve } from 'path'
 
 // we keep this es5 for easier interop with bin files
 var express = require('express')
 var app = express()
 var fs = require('fs')
 
-var FLAKE_FILE = __dirname + '/times-flaked'
+var FLAKE_FILE = resolve(__dirname, '/times-flaked')
 var server = null
 
 app.use(function logMiddleware (req, res, next) {
@@ -39,7 +40,7 @@ app.get('/flake/:timesToFlake', function (req, res, next) {
     if (timesFlaked >= timesToFlake) {
       res.send('<div id="success">Success!</div>')
     } else {
-      fs.writeFile(FLAKE_FILE, timesFlaked + 1, {flag: 'w'}, function (err) {
+      fs.writeFile(FLAKE_FILE, timesFlaked + 1, { flag: 'w' }, function (err) {
         if (err) {
           return next(err)
         }
