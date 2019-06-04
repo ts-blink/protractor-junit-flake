@@ -15,7 +15,7 @@
     "test:integration": "npm run build && mocha --opts test/integration/mocha.opts --slow 30001 --timeout 30000 --reporter tap",
     "test:dev": "mocha --watch --opts test/unit/mocha.opts",
     "build": "babel -d dist src",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "bin": "./bin/protractor-junit-flake",
@@ -24,19 +24,19 @@
   "devDependencies": {
     "babel": "^5.8.20",
     "chai": "^3.2.0",
-    "conventional-changelog-lint": "^1.1.0",
+    "conventional-changelog-lint": "^2.1.1",
     "cookie-parser": "^1.3.5",
     "express": "^4.13.1",
     "express-session": "^1.11.3",
-    "mocha": "^2.2.5",
+    "mocha": "^6.1.4",
     "morgan": "^1.6.1",
     "mversion": "^1.10.0",
-    "protractor": "^4.0.11",
+    "protractor": "^5.4.2",
     "proxyquire": "^1.6.0",
     "semantic-release": "^6.3.6",
     "sinon": "^1.15.4",
     "sinon-chai": "^2.8.0",
-    "standard": "^5.4.1"
+    "standard": "^12.0.1"
   },
   "dependencies": {
     "chalk": "^1.1.3",
