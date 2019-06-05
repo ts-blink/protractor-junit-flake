@@ -49,10 +49,7 @@ function processResults(filePattern) {
             return !!caze.failure;
           }).value();
 
-          var unskipped = cases[1].filter(function (caze) {
-            return !caze.skipped;
-          });
-          suite.testcase = unskipped;
+          suite.testcase = cases[1];
           var cazeNames = cases[0].map(function (caze) {
             return caze.$.name;
           });
@@ -67,6 +64,7 @@ function processResults(filePattern) {
       return specNames;
     } catch (err) {
       console.log('Errors parsing xml: ', err, '\n');
+      return specNames;
     }
   }, []);
 }

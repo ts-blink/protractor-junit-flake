@@ -9,20 +9,19 @@ export default function (options = {}, callback = function noop () {}) {
   let testAttempt = parsedOptions.testAttempt || 1
   let logger = new Logger(parsedOptions.color)
 
-  function rerunFailedTests (status, output = '') {
+  function rerunFailedTests (status, output) {
     let failedSpecNames = processResults(parsedOptions.resultsXmlPath)
 
     ++testAttempt
     logger.log('info', 'Failed specs = ' + failedSpecNames)
-    if (failedSpecNames.length === 0) {
+    if (!failedSpecNames || failedSpecNames.length === 0) {
       logger.log('info', `\nNo failed specs were found. Exiting test attempt ${testAttempt}.\n`)
+      callback(status, output)
     } else {
-      logger.log('info', `\nRe-running test attempt ${testAttempt} with failedSpecNames.length tests\n`)
+      logger.log('info', `\nRe-running test attempt ${testAttempt} with ${failedSpecNames.length} tests\n`)
       let specRegex = failedSpecNames.join('|')
       return startProtractor(specRegex, true)
     }
-
-    callback(status, output)
   }
 
   function handleTestEnd (status, output = '') {
@@ -76,7 +75,7 @@ export default function (options = {}, callback = function noop () {}) {
   }
 
   if (testAttempt > 1 && testAttempt <= parsedOptions.maxAttempts) {
-    rerunFailedTests()
+    rerunFailedTests(0, '')
   } else {
     startProtractor()
   }

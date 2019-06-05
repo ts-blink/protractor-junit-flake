@@ -40,6 +40,7 @@ export function processResults (filePattern) {
       return specNames
     } catch (err) {
       console.log('Errors parsing xml: ', err, '\n')
+      return specNames
     }
   }, [])
 }
