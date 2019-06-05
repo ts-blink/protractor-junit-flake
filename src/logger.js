@@ -26,6 +26,10 @@ class Logger {
     this.log('protractor', message, false)
   }
 
+  info (message) {
+    this.log('info', message)
+  }
+
   colorize (message, useColor) {
     if (useColor && chalk.supportsColor && this.color) {
       return chalk[this.color](message)

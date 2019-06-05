@@ -47,6 +47,11 @@ var Logger = (function () {
       this.log('protractor', message, false);
     }
   }, {
+    key: 'info',
+    value: function info(message) {
+      this.log('info', message);
+    }
+  }, {
     key: 'colorize',
     value: function colorize(message, useColor) {
       if (useColor && _chalk2['default'].supportsColor && this.color) {

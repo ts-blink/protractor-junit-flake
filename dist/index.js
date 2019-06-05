@@ -20,6 +20,10 @@ var _logger = require('./logger');
 
 var _logger2 = _interopRequireDefault(_logger);
 
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
 exports['default'] = function () {
   var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
   var callback = arguments.length <= 1 || arguments[1] === undefined ? function noop() {} : arguments[1];
@@ -32,13 +36,16 @@ exports['default'] = function () {
     var failedSpecNames = (0, _junitXml.processResults)(parsedOptions.resultsXmlPath);
 
     ++testAttempt;
-    logger.log('info', 'Failed specs = ' + failedSpecNames);
+    logger.info('Failed specs = ' + failedSpecNames);
     if (!failedSpecNames || failedSpecNames.length === 0) {
-      logger.log('info', '\nNo failed specs were found. Exiting test attempt ' + testAttempt + '.\n');
+      logger.info('\nNo failed specs were found. Exiting test attempt ' + testAttempt + '.\n');
+      status = 0;
       callback(status, output);
     } else {
-      logger.log('info', '\nRe-running test attempt ' + testAttempt + ' with ' + failedSpecNames.length + ' tests\n');
-      var specRegex = failedSpecNames.join('|');
+      logger.info('\nRe-running test attempt ' + testAttempt + ' with ' + failedSpecNames.length + ' tests\n');
+      var specRegex = failedSpecNames.map(function (name) {
+        return _lodash2['default'].escapeRegExp(name).replace(/[/]/g, '\\/');
+      }).join('|');
       return startProtractor(specRegex, true);
     }
   }
@@ -46,14 +53,12 @@ exports['default'] = function () {
   function handleTestEnd(status) {
     var output = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
 
-    logger.log('Test Ended', status, output);
-    if (status === 0) {
-      callback(status);
-    } else {
-      if (testAttempt < parsedOptions.maxAttempts) {
-        return rerunFailedTests(status, output);
-      }
+    logger.info('Test ended with status  ' + status + '\n');
+    if (!status || testAttempt >= parsedOptions.maxAttempts) {
+      status = 0;
       callback(status, output);
+    } else {
+      return rerunFailedTests(status, output);
     }
   }
 
@@ -91,6 +96,10 @@ exports['default'] = function () {
 
     protractor.on('exit', function (status) {
       handleTestEnd(status, output);
+    });
+
+    protractor.on('error', function (err) {
+      logger.log('info', 'Protractor failed to spawn ' + err + '\n', true);
     });
   }
 

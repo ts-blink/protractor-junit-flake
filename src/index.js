@@ -3,6 +3,7 @@ import { processResults } from './junit-xml'
 import parseOptions from './parse-options'
 import 'core-js/shim'
 import Logger from './logger'
+import _ from 'lodash'
 
 export default function (options = {}, callback = function noop () {}) {
   let parsedOptions = parseOptions(options)
@@ -13,26 +14,27 @@ export default function (options = {}, callback = function noop () {}) {
     let failedSpecNames = processResults(parsedOptions.resultsXmlPath)
 
     ++testAttempt
-    logger.log('info', 'Failed specs = ' + failedSpecNames)
+    logger.info('Failed specs = ' + failedSpecNames)
     if (!failedSpecNames || failedSpecNames.length === 0) {
-      logger.log('info', `\nNo failed specs were found. Exiting test attempt ${testAttempt}.\n`)
+      logger.info(`\nNo failed specs were found. Exiting test attempt ${testAttempt}.\n`)
+      status = 0
       callback(status, output)
     } else {
-      logger.log('info', `\nRe-running test attempt ${testAttempt} with ${failedSpecNames.length} tests\n`)
-      let specRegex = failedSpecNames.join('|')
+      logger.info(`\nRe-running test attempt ${testAttempt} with ${failedSpecNames.length} tests\n`)
+      let specRegex = failedSpecNames
+        .map(name => _.escapeRegExp(name).replace(/[/]/g, '\\/'))
+        .join('|')
       return startProtractor(specRegex, true)
     }
   }
 
   function handleTestEnd (status, output = '') {
-    logger.log('Test Ended', status, output)
-    if (status === 0) {
-      callback(status)
-    } else {
-      if (testAttempt < parsedOptions.maxAttempts) {
-        return rerunFailedTests(status, output)
-      }
+    logger.info(`Test ended with status  ${status}\n`)
+    if (!status || testAttempt >= parsedOptions.maxAttempts) {
+      status = 0
       callback(status, output)
+    } else {
+      return rerunFailedTests(status, output)
     }
   }
 
@@ -71,6 +73,10 @@ export default function (options = {}, callback = function noop () {}) {
 
     protractor.on('exit', function (status) {
       handleTestEnd(status, output)
+    })
+
+    protractor.on('error', function (err) {
+      logger.log('info', `Protractor failed to spawn ${err}\n`, true)
     })
   }
 
