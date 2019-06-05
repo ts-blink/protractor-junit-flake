@@ -32,31 +32,39 @@ function processResults(filePattern) {
   var files = _glob2['default'].sync(filePattern, { cwd: cwd });
   return files.reduce(function (specNames, file) {
     var resolvedPath = _path2['default'].resolve(cwd, file);
-    console.log('reading', resolvedPath);
+    console.log('\nReading file ', resolvedPath, '\n');
     var fileContents = _fs2['default'].readFileSync(resolvedPath);
-    (0, _xml2js.parseString)(fileContents, function (err, result) {
-      if (err) {
-        console.log('Found errors', err);
-        return;
-      }
-      var suites = _lodash2['default'].castArray(result.testsuites.testsuite);
-      suites.forEach(function (suite) {
-        if (!suite.testcase) {
+    try {
+      (0, _xml2js.parseString)(fileContents, function (err, result) {
+        if (err) {
+          console.log('Found parsing errors: ', err, '\n');
           return;
         }
-        var cases = (0, _lodash2['default'])(suite.testcase).castArray().partition(function (caze) {
-          return !!caze.failure;
-        }).value();
+        var suites = _lodash2['default'].castArray(result.testsuites.testsuite);
+        suites.forEach(function (suite) {
+          if (!suite.testcase) {
+            return;
+          }
+          var cases = (0, _lodash2['default'])(suite.testcase).castArray().partition(function (caze) {
+            return !!caze.failure;
+          }).value();
 
-        suite.testcase = cases[1];
-        specNames.push.apply(specNames, _toConsumableArray(cases[0].map(function (caze) {
-          return caze.$.name;
-        })));
+          suite.testcase = cases[1];
+          var cazeNames = cases[0].map(function (caze) {
+            return caze.$.name;
+          });
+          if (cazeNames) {
+            specNames.push.apply(specNames, _toConsumableArray(cazeNames));
+          }
+        });
+        var builder = new _xml2js.Builder();
+        var xml = builder.buildObject(result);
+        _fs2['default'].writeFileSync(resolvedPath, xml);
       });
-      var builder = new _xml2js.Builder();
-      var xml = builder.buildObject(result);
-      _fs2['default'].writeFileSync(resolvedPath, xml);
-    });
-    return specNames;
+      return specNames;
+    } catch (err) {
+      console.log('Errors parsing xml: ', err, '\n');
+      return specNames;
+    }
   }, []);
 }
