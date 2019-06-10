@@ -14,12 +14,14 @@ var _path = require('path');
 
 var DEFAULT_OPTIONS = {
   nodeBin: 'node',
+  testAttempt: 1,
   maxAttempts: 3,
   protractorArgs: [],
   // set color to one of the colors available at 'chalk' - https://github.com/chalk/ansi-styles#colors
   // set false to disable coloring
   color: 'magenta',
-  resultsXmlPath: (0, _path.join)(process.cwd(), '/results/*.xml')
+  // Path for xml results? Could be a pattern or file
+  resultsXmlPath: 'results/*.xml'
 };
 
 function parseOptions(providedOptions) {
