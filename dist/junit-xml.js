@@ -38,9 +38,9 @@ function processResults(filePattern, testAttempt) {
 
     var fileExists = _fs2['default'].existsSync(processedResultsFile);
     if (fileExists) {
-      console.log('Skipping ' + resolvedPath + ' - already processed since ' + processedResultsFile + ' exists');
+      console.log('Skipping ' + resolvedPath + ' - already processed since ' + processedResultsFile + ' exists\n');
     } else {
-      console.log('\nReading file ', resolvedPath, '\n');
+      console.log('Parsing file ', resolvedPath, '\n');
       var fileContents = _fs2['default'].readFileSync(resolvedPath);
       try {
         (0, _xml2js.parseString)(fileContents, function (err, result) {

@@ -15,9 +15,9 @@ export function processResults (filePattern, testAttempt) {
 
     var fileExists = fs.existsSync(processedResultsFile)
     if (fileExists) {
-      console.log(`Skipping ${resolvedPath} - already processed since ${processedResultsFile} exists`)
+      console.log(`Skipping ${resolvedPath} - already processed since ${processedResultsFile} exists\n`)
     } else {
-      console.log('\nReading file ', resolvedPath, '\n')
+      console.log('Parsing file ', resolvedPath, '\n')
       var fileContents = fs.readFileSync(resolvedPath)
       try {
         parseXml(fileContents, (err, result) => {
