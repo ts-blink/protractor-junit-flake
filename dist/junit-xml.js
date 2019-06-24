@@ -38,42 +38,45 @@ function processResults(filePattern, testAttempt) {
 
     var fileExists = _fs2['default'].existsSync(processedResultsFile);
     if (fileExists) {
-      console.log('Skipping ' + resolvedPath + ' - already processed since ' + processedResultsFile + ' exists\n');
+      console.log(resolvedPath + ' already read since ' + processedResultsFile + ' exists\n');
+      // For sanity of results, we need to process it instead
+      resolvedPath = processedResultsFile;
     } else {
       console.log('Parsing file ', resolvedPath, '\n');
-      var fileContents = _fs2['default'].readFileSync(resolvedPath);
-      try {
-        (0, _xml2js.parseString)(fileContents, function (err, result) {
-          if (err) {
-            console.log('Found parsing errors: ', err, '\n');
+    }
+    var fileContents = _fs2['default'].readFileSync(resolvedPath);
+    try {
+      (0, _xml2js.parseString)(fileContents, function (err, result) {
+        if (err) {
+          console.log('Found parsing errors: ', err, '\n');
+          return;
+        }
+        var suites = _lodash2['default'].castArray(result.testsuites.testsuite);
+        suites.forEach(function (suite) {
+          if (!suite.testcase) {
             return;
           }
-          var suites = _lodash2['default'].castArray(result.testsuites.testsuite);
-          suites.forEach(function (suite) {
-            if (!suite.testcase) {
-              return;
-            }
-            var cases = (0, _lodash2['default'])(suite.testcase).castArray().partition(function (caze) {
-              return !!caze.failure;
-            }).value();
+          var cases = (0, _lodash2['default'])(suite.testcase).castArray().partition(function (caze) {
+            return !!caze.failure;
+          }).value();
 
-            suite.testcase = cases[1];
-            var cazeNames = cases[0].map(function (caze) {
-              return caze.$.name;
-            });
-            if (cazeNames) {
-              specNames.push.apply(specNames, _toConsumableArray(cazeNames));
-            }
+          suite.testcase = cases[1];
+          var cazeNames = cases[0].map(function (caze) {
+            return caze.$.name;
           });
-          var builder = new _xml2js.Builder();
-          var xml = builder.buildObject(result);
-          // Do not clobber results file from protractor
-          _fs2['default'].writeFileSync(processedResultsFile, xml);
+          if (cazeNames) {
+            specNames.push.apply(specNames, _toConsumableArray(cazeNames));
+          }
         });
-      } catch (err) {
-        console.log('Errors parsing xml: ', err, '\n');
-      }
+        var builder = new _xml2js.Builder();
+        var xml = builder.buildObject(result);
+        // Do not clobber results file from protractor
+        _fs2['default'].writeFileSync(processedResultsFile, xml);
+      });
+    } catch (err) {
+      console.log('Errors parsing xml: ', err, '\n');
     }
+
     return specNames;
   }, []);
 }

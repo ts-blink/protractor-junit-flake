@@ -15,41 +15,44 @@ export function processResults (filePattern, testAttempt) {
 
     var fileExists = fs.existsSync(processedResultsFile)
     if (fileExists) {
-      console.log(`Skipping ${resolvedPath} - already processed since ${processedResultsFile} exists\n`)
+      console.log(`${resolvedPath} already read since ${processedResultsFile} exists\n`)
+      // For sanity of results, we need to process it instead
+      resolvedPath = processedResultsFile
     } else {
       console.log('Parsing file ', resolvedPath, '\n')
-      var fileContents = fs.readFileSync(resolvedPath)
-      try {
-        parseXml(fileContents, (err, result) => {
-          if (err) {
-            console.log('Found parsing errors: ', err, '\n')
+    }
+    var fileContents = fs.readFileSync(resolvedPath)
+    try {
+      parseXml(fileContents, (err, result) => {
+        if (err) {
+          console.log('Found parsing errors: ', err, '\n')
+          return
+        }
+        let suites = _.castArray(result.testsuites.testsuite)
+        suites.forEach(suite => {
+          if (!suite.testcase) {
             return
           }
-          let suites = _.castArray(result.testsuites.testsuite)
-          suites.forEach(suite => {
-            if (!suite.testcase) {
-              return
-            }
-            let cases = _(suite.testcase)
-              .castArray()
-              .partition(caze => !!caze.failure)
-              .value()
+          let cases = _(suite.testcase)
+            .castArray()
+            .partition(caze => !!caze.failure)
+            .value()
 
-            suite.testcase = cases[1]
-            let cazeNames = cases[0].map(caze => caze.$.name)
-            if (cazeNames) {
-              specNames.push(...cazeNames)
-            }
-          })
-          let builder = new Builder()
-          let xml = builder.buildObject(result)
-          // Do not clobber results file from protractor
-          fs.writeFileSync(processedResultsFile, xml)
+          suite.testcase = cases[1]
+          let cazeNames = cases[0].map(caze => caze.$.name)
+          if (cazeNames) {
+            specNames.push(...cazeNames)
+          }
         })
-      } catch (err) {
-        console.log('Errors parsing xml: ', err, '\n')
-      }
+        let builder = new Builder()
+        let xml = builder.buildObject(result)
+        // Do not clobber results file from protractor
+        fs.writeFileSync(processedResultsFile, xml)
+      })
+    } catch (err) {
+      console.log('Errors parsing xml: ', err, '\n')
     }
+
     return specNames
   }, [])
 }
