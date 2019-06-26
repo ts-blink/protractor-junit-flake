@@ -29,11 +29,14 @@ exports['default'] = function () {
   var callback = arguments.length <= 1 || arguments[1] === undefined ? function noop() {} : arguments[1];
 
   var parsedOptions = (0, _parseOptions2['default'])(options);
-  var testAttempt = parsedOptions.testAttempt || 1;
   var logger = new _logger2['default'](parsedOptions.color);
 
+  logger.info('Running attempt ' + parsedOptions.testAttempt + ' of ' + parsedOptions.maxAttempts + '\n');
+  logger.info('Using resultsXMLPath: ' + parsedOptions.resultsXmlPath + '\n');
+  var testAttempt = parsedOptions.testAttempt || 1;
+
   function rerunFailedTests(status, output) {
-    var failedSpecNames = (0, _junitXml.processResults)(parsedOptions.resultsXmlPath);
+    var failedSpecNames = (0, _junitXml.processResults)(parsedOptions.resultsXmlPath, testAttempt);
 
     ++testAttempt;
     logger.info('Failed specs = ' + failedSpecNames);
@@ -55,7 +58,6 @@ exports['default'] = function () {
 
     logger.info('Test ended with status  ' + status + '\n');
     if (!status || testAttempt >= parsedOptions.maxAttempts) {
-      status = 0;
       callback(status, output);
     } else {
       return rerunFailedTests(status, output);
@@ -66,7 +68,6 @@ exports['default'] = function () {
     var specRegex = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
     var retry = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
-    var output = '';
     var protractorArgs = [parsedOptions.protractorPath].concat(parsedOptions.protractorArgs);
 
     if (retry) {
@@ -85,25 +86,27 @@ exports['default'] = function () {
     protractor.stdout.on('data', function (buffer) {
       var text = buffer.toString();
       logger.protractor(text);
-      output = output + text;
     });
 
     protractor.stderr.on('data', function (buffer) {
       var text = buffer.toString();
       logger.protractor(text);
-      output = output + text;
     });
 
-    protractor.on('exit', function (status) {
-      handleTestEnd(status, output);
+    protractor.on('exit', function (code, signal) {
+      logger.info('Exited attempt ' + testAttempt + ' with code: ' + code + ' and signal: ' + signal + '\n');
+      handleTestEnd(code, '');
     });
 
     protractor.on('error', function (err) {
-      logger.log('info', 'Protractor failed to spawn ' + err + '\n', true);
+      logger.info('Protractor error ' + err + '\n', true);
+      handleTestEnd(1, 'Protractor error ' + err + '\n');
     });
   }
 
   if (testAttempt > 1 && testAttempt <= parsedOptions.maxAttempts) {
+    // We increment testAttempt in rerunFailedTests, so move it back first
+    --testAttempt;
     rerunFailedTests(0, '');
   } else {
     startProtractor();

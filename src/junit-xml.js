@@ -4,12 +4,23 @@ import path from 'path'
 import _ from 'lodash'
 import { parseString as parseXml, Builder } from 'xml2js'
 
-export function processResults (filePattern) {
+export function processResults (filePattern, testAttempt) {
   var cwd = process.cwd()
   var files = glob.sync(filePattern, { cwd: cwd })
   return files.reduce((specNames, file) => {
     var resolvedPath = path.resolve(cwd, file)
-    console.log('\nReading file ', resolvedPath, '\n')
+    var resultDir = path.dirname(resolvedPath)
+    var resultFileName = path.basename(resolvedPath)
+    var processedResultsFile = path.resolve(resultDir, `flake-${resultFileName}`)
+
+    var fileExists = fs.existsSync(processedResultsFile)
+    if (fileExists) {
+      console.log(`${resolvedPath} already read since ${processedResultsFile} exists\n`)
+      // For sanity of results, we need to process it instead
+      resolvedPath = processedResultsFile
+    } else {
+      console.log('Parsing file ', resolvedPath, '\n')
+    }
     var fileContents = fs.readFileSync(resolvedPath)
     try {
       parseXml(fileContents, (err, result) => {
@@ -35,12 +46,13 @@ export function processResults (filePattern) {
         })
         let builder = new Builder()
         let xml = builder.buildObject(result)
-        fs.writeFileSync(resolvedPath, xml)
+        // Do not clobber results file from protractor
+        fs.writeFileSync(processedResultsFile, xml)
       })
-      return specNames
     } catch (err) {
       console.log('Errors parsing xml: ', err, '\n')
-      return specNames
     }
+
+    return specNames
   }, [])
 }

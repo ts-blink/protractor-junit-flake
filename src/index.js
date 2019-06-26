@@ -6,12 +6,15 @@ import Logger from './logger'
 import _ from 'lodash'
 
 export default function (options = {}, callback = function noop () {}) {
-  let parsedOptions = parseOptions(options)
+  const parsedOptions = parseOptions(options)
+  const logger = new Logger(parsedOptions.color)
+
+  logger.info(`Running attempt ${parsedOptions.testAttempt} of ${parsedOptions.maxAttempts}\n`)
+  logger.info(`Using resultsXMLPath: ${parsedOptions.resultsXmlPath}\n`)
   let testAttempt = parsedOptions.testAttempt || 1
-  let logger = new Logger(parsedOptions.color)
 
   function rerunFailedTests (status, output) {
-    let failedSpecNames = processResults(parsedOptions.resultsXmlPath)
+    let failedSpecNames = processResults(parsedOptions.resultsXmlPath, testAttempt)
 
     ++testAttempt
     logger.info('Failed specs = ' + failedSpecNames)
@@ -31,7 +34,6 @@ export default function (options = {}, callback = function noop () {}) {
   function handleTestEnd (status, output = '') {
     logger.info(`Test ended with status  ${status}\n`)
     if (!status || testAttempt >= parsedOptions.maxAttempts) {
-      status = 0
       callback(status, output)
     } else {
       return rerunFailedTests(status, output)
@@ -39,7 +41,6 @@ export default function (options = {}, callback = function noop () {}) {
   }
 
   function startProtractor (specRegex = '', retry = false) {
-    let output = ''
     let protractorArgs = [parsedOptions.protractorPath].concat(parsedOptions.protractorArgs)
 
     if (retry) {
@@ -62,25 +63,27 @@ export default function (options = {}, callback = function noop () {}) {
     protractor.stdout.on('data', (buffer) => {
       let text = buffer.toString()
       logger.protractor(text)
-      output = output + text
     })
 
     protractor.stderr.on('data', (buffer) => {
       let text = buffer.toString()
       logger.protractor(text)
-      output = output + text
     })
 
-    protractor.on('exit', function (status) {
-      handleTestEnd(status, output)
+    protractor.on('exit', function (code, signal) {
+      logger.info(`Exited attempt ${testAttempt} with code: ${code} and signal: ${signal}\n`)
+      handleTestEnd(code, '')
     })
 
     protractor.on('error', function (err) {
-      logger.log('info', `Protractor failed to spawn ${err}\n`, true)
+      logger.info(`Protractor error ${err}\n`, true)
+      handleTestEnd(1, `Protractor error ${err}\n`)
     })
   }
 
   if (testAttempt > 1 && testAttempt <= parsedOptions.maxAttempts) {
+    // We increment testAttempt in rerunFailedTests, so move it back first
+    --testAttempt
     rerunFailedTests(0, '')
   } else {
     startProtractor()
