@@ -58,6 +58,7 @@ exports['default'] = function () {
 
     logger.info('Test ended with status  ' + status + '\n');
     if (!status || testAttempt >= parsedOptions.maxAttempts) {
+      (0, _junitXml.processLastRunResults)(parsedOptions.resultsXmlPath, testAttempt);
       callback(status, output);
     } else {
       return rerunFailedTests(status, output);

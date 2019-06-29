@@ -4,6 +4,28 @@ import path from 'path'
 import _ from 'lodash'
 import { parseString as parseXml, Builder } from 'xml2js'
 
+// We leave results of last run as they are except copying over the files with new name
+export function processLastRunResults (filePattern, testAttempt) {
+  var cwd = process.cwd()
+  var files = glob.sync(filePattern, { cwd: cwd })
+  return files.reduce((specNames, file) => {
+    var resolvedPath = path.resolve(cwd, file)
+    var resultDir = path.dirname(resolvedPath)
+    var resultFileName = path.basename(resolvedPath)
+    var processedResultsFile = path.resolve(resultDir, `flake-${resultFileName}`)
+
+    var fileExists = fs.existsSync(processedResultsFile)
+    if (fileExists) {
+      console.log(`${resolvedPath} already read since ${processedResultsFile} exists\n`)
+      // For sanity of results, we need to process it instead
+      resolvedPath = processedResultsFile
+    } else {
+      console.log('Processing file ', resolvedPath, ' for last attempt\n')
+      fs.copyFileSync(resultFileName, processedResultsFile)
+    }
+  })
+}
+
 export function processResults (filePattern, testAttempt) {
   var cwd = process.cwd()
   var files = glob.sync(filePattern, { cwd: cwd })

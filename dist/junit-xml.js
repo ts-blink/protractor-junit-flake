@@ -3,6 +3,7 @@
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
+exports.processLastRunResults = processLastRunResults;
 exports.processResults = processResults;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -26,6 +27,29 @@ var _lodash = require('lodash');
 var _lodash2 = _interopRequireDefault(_lodash);
 
 var _xml2js = require('xml2js');
+
+// We leave results of last run as they are except copying over the files with new name
+
+function processLastRunResults(filePattern, testAttempt) {
+  var cwd = process.cwd();
+  var files = _glob2['default'].sync(filePattern, { cwd: cwd });
+  return files.reduce(function (specNames, file) {
+    var resolvedPath = _path2['default'].resolve(cwd, file);
+    var resultDir = _path2['default'].dirname(resolvedPath);
+    var resultFileName = _path2['default'].basename(resolvedPath);
+    var processedResultsFile = _path2['default'].resolve(resultDir, 'flake-' + resultFileName);
+
+    var fileExists = _fs2['default'].existsSync(processedResultsFile);
+    if (fileExists) {
+      console.log(resolvedPath + ' already read since ' + processedResultsFile + ' exists\n');
+      // For sanity of results, we need to process it instead
+      resolvedPath = processedResultsFile;
+    } else {
+      console.log('Processing file ', resolvedPath, ' for last attempt\n');
+      _fs2['default'].copyFileSync(resultFileName, processedResultsFile);
+    }
+  });
+}
 
 function processResults(filePattern, testAttempt) {
   var cwd = process.cwd();

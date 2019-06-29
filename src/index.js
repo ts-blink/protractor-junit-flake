@@ -1,5 +1,5 @@
 import { spawn } from 'child_process'
-import { processResults } from './junit-xml'
+import { processLastRunResults, processResults } from './junit-xml'
 import parseOptions from './parse-options'
 import 'core-js/shim'
 import Logger from './logger'
@@ -34,6 +34,7 @@ export default function (options = {}, callback = function noop () {}) {
   function handleTestEnd (status, output = '') {
     logger.info(`Test ended with status  ${status}\n`)
     if (!status || testAttempt >= parsedOptions.maxAttempts) {
+      processLastRunResults(parsedOptions.resultsXmlPath, testAttempt)
       callback(status, output)
     } else {
       return rerunFailedTests(status, output)
