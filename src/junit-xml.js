@@ -8,7 +8,7 @@ import { parseString as parseXml, Builder } from 'xml2js'
 export function processLastRunResults (filePattern, testAttempt) {
   var cwd = process.cwd()
   var files = glob.sync(filePattern, { cwd: cwd })
-  files.forEach((specNames, file) => {
+  files.forEach((file) => {
     var resolvedPath = path.resolve(cwd, file)
     var resultDir = path.dirname(resolvedPath)
     var resultFileName = path.basename(resolvedPath)
@@ -20,7 +20,7 @@ export function processLastRunResults (filePattern, testAttempt) {
       // For sanity of results, we need to process it instead
       resolvedPath = processedResultsFile
     } else {
-      console.log('Processing file ', resolvedPath, ' for last attempt\n')
+      console.log(`Copying ${resolvedPath} to ${processedResultsFile} for last attempt\n`)
       fs.copyFileSync(resolvedPath, processedResultsFile)
     }
   })

@@ -33,7 +33,7 @@ var _xml2js = require('xml2js');
 function processLastRunResults(filePattern, testAttempt) {
   var cwd = process.cwd();
   var files = _glob2['default'].sync(filePattern, { cwd: cwd });
-  files.forEach(function (specNames, file) {
+  files.forEach(function (file) {
     var resolvedPath = _path2['default'].resolve(cwd, file);
     var resultDir = _path2['default'].dirname(resolvedPath);
     var resultFileName = _path2['default'].basename(resolvedPath);
@@ -45,7 +45,7 @@ function processLastRunResults(filePattern, testAttempt) {
       // For sanity of results, we need to process it instead
       resolvedPath = processedResultsFile;
     } else {
-      console.log('Processing file ', resolvedPath, ' for last attempt\n');
+      console.log('Copying ' + resolvedPath + ' to ' + processedResultsFile + ' for last attempt\n');
       _fs2['default'].copyFileSync(resolvedPath, processedResultsFile);
     }
   });
