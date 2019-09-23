@@ -59,16 +59,8 @@ function processResults(filePattern, testAttempt) {
     var resultDir = _path2['default'].dirname(resolvedPath);
     var resultFileName = _path2['default'].basename(resolvedPath);
     var processedResultsFile = _path2['default'].resolve(resultDir, 'flake-' + resultFileName);
-
-    var fileExists = _fs2['default'].existsSync(processedResultsFile);
-    if (fileExists) {
-      console.log(resolvedPath + ' already read since ' + processedResultsFile + ' exists\n');
-      // For sanity of results, we need to process it instead
-      resolvedPath = processedResultsFile;
-    } else {
-      console.log('Parsing file ', resolvedPath, '\n');
-    }
     var fileContents = _fs2['default'].readFileSync(resolvedPath);
+
     try {
       (0, _xml2js.parseString)(fileContents, function (err, result) {
         if (err) {
@@ -84,7 +76,7 @@ function processResults(filePattern, testAttempt) {
             return !!caze.failure;
           }).value();
 
-          suite.testcase = cases[1];
+          suite.testcase = cases[0];
           var cazeNames = cases[0].map(function (caze) {
             return caze.$.name;
           });
