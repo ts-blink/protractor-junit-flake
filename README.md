@@ -33,7 +33,7 @@ var protractorFlake = require('protractor-junit-flake');
 
 // Default Options
 protractorFlake({
-  resultsXmlPath: 'test/results/protractor-*.xml'
+  resultsXmlPath: 'test/results/flake-protractor-*.xml'
 }, function (status, output) {
   proces.exit(status)
 })
@@ -42,7 +42,7 @@ protractorFlake({
 protractorFlake({
   protractorPath: '/path/to/protractor',
   maxAttempts: 3,
-  resultsXmlPath: 'test/results/protractor-*.xml'
+  resultsXmlPath: 'test/results/flake-protractor-*.xml'
   // expects node to be in path
   // set this to wherever the node bin is located
   nodeBin: 'node',
