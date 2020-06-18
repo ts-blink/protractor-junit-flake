@@ -30,7 +30,7 @@
     "express-session": "^1.11.3",
     "mocha": "^6.1.4",
     "morgan": "^1.6.1",
-    "mversion": "^1.10.0",
+    "mversion": "^2.0.0",
     "protractor": "^5.4.2",
     "proxyquire": "^1.6.0",
     "semantic-release": "^6.3.6",
